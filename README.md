@@ -1,12 +1,57 @@
-# React + Vite
+# React Custom Hooks: 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```
+import React, { use, useEffect, useState } from "react";
+import axios from "axios";
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+function useTodos(n) {
+  const [todos, setTodos] = useState([]); // Ensure initial state is an array
+  const [loading, setLoading] = useState(true);
 
-## Expanding the ESLint configuration
+  function getData()
+  {
+    axios.get(`https://dummyjson.com/todos`).then((res) => {
+      // The API returns a single object, so wrap it in an array
+      setTodos(res.data.todos);
+      setLoading(false);
+    });
+  }
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+  useEffect(() => {
+     setInterval(() => {
+      getData();
+     },n * 1000)
+     getData();
+  }, [n]);
+
+  return { todos: todos,
+     loading:loading };
+}
+
+function App() {
+  const { todos, loading } = useTodos(5);
+
+  if (loading) {
+    return <div> loading ...</div>;
+  }
+
+  return (
+    <div>
+      {todos.map((todo) => (
+        <Track key={todo.id} todo={todo} />
+      ))}
+    </div>
+  );
+}
+
+function Track({ todo }) {
+  return (
+    <div>
+      <div>{todo.todo}</div>
+    </div>
+  );
+}
+
+export default App;
+```
